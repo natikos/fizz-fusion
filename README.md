@@ -1,6 +1,7 @@
 # FizzFusion App
 
 ## Prerequisites:
+
 - Node.js v18.17.0 (npm v9.6.7)
 - Docker
 - A positive attitude and a good mood 😄
@@ -14,8 +15,9 @@ Before you start the development process, make sure to add a `.env` file. You ca
 ### 2. Run MongoDB in a Container
 
 To set up the database, run MongoDB in a Docker container using the following command:
+
 ```sh
-docker run -d --name <container_name> -p 27017:27017 mongo
+docker run -d --name fizz-fusion-db -p 27017:27017 mongo:6.0.8
 ```
 
 ### 3. Install Server Dependencies
