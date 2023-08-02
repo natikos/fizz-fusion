@@ -16,6 +16,17 @@
     "noImplicitAny": true,
     "strictBindCallApply": true,
     "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "#user/*": [
+        "src/user/*"
+      ],
+      "#utils": [
+        "src/common/utils"
+      ],
+      "#config": [
+        "src/config/config.service"
+      ]
+    }
   }
 }
