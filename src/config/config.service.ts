@@ -1,3 +1,4 @@
+import { Environment } from '#common/types';
 import { generateToken } from '#utils';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -12,7 +13,7 @@ import { AuthVars } from './interfaces';
 export class AppConfigService
   implements MongooseOptionsFactory, JwtOptionsFactory
 {
-  private readonly JWT_EXPIRES_IN_HOURS = 1;
+  private readonly JWT_EXPIRES_IN = 5;
 
   constructor(private readonly envService: ConfigService) {}
 
@@ -23,28 +24,24 @@ export class AppConfigService
 
   createJwtOptions(): JwtModuleOptions {
     const tokenLength = this.envService.getOrThrow('JWT_SECRET_LENGTH');
-    const secretOrKeyProvider: JwtModuleOptions['secretOrKeyProvider'] = (
-      requestType,
-      tokenOrPayload,
-      options,
-    ) => {
-      // TODO: remove after discovering
-      console.log('requestType', requestType);
-      console.log('tokenOrPayload', tokenOrPayload);
-      console.log('options', options);
-      return generateToken(tokenLength);
-    };
 
     return {
-      secretOrKeyProvider,
+      secretOrKeyProvider: () => generateToken(tokenLength),
       signOptions: {
-        expiresIn: `${this.JWT_EXPIRES_IN_HOURS}h`,
+        expiresIn:
+          this.environment === 'production'
+            ? `${this.JWT_EXPIRES_IN}m`
+            : `${this.JWT_EXPIRES_IN}h`,
       },
     };
   }
 
   get auth(): AuthVars {
     const saltRounds = +this.envService.getOrThrow('SALT_ROUNDS');
-    return { saltRounds, jwtExpiresIn: this.JWT_EXPIRES_IN_HOURS };
+    return { saltRounds };
+  }
+
+  get environment(): Environment {
+    return this.envService.getOrThrow('NODE_ENV');
   }
 }

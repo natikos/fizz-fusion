@@ -1,12 +1,12 @@
 import { AppConfigService } from '#config';
 import { User } from '#user/models';
 import { generateToken } from '#utils';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
-import { genSalt, hash } from 'bcrypt';
+import { compare, genSalt, hash } from 'bcrypt';
 import { Model } from 'mongoose';
-import { AppSignUp, AuthenticationResponseDto } from './dto';
+import { AppLogInDto, AppSignUpDto, AuthenticationResponseDto } from './dto';
 
 @Injectable()
 export class AuthService {
@@ -16,7 +16,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async appSignUp(userData: AppSignUp): Promise<AuthenticationResponseDto> {
+  async appSignUp(userData: AppSignUpDto): Promise<AuthenticationResponseDto> {
     const password = await this.hashPassword(userData.password);
     const { _id } = await this.user.create({
       ...userData,
@@ -26,6 +26,22 @@ export class AuthService {
     // TODO: store refresh token in Redis
     // TODO: Send email confirmation
     return tokens;
+  }
+
+  async appLogIn(credentials: AppLogInDto): Promise<AuthenticationResponseDto> {
+    const { password, login } = credentials;
+    const user = await this.user.findOne(
+      { $or: [{ email: login }, { username: login }] },
+      { password: 1 },
+    );
+
+    if (!user) {
+      throw new UnauthorizedException('wrong_user');
+    }
+
+    await this.verifyPassword(password, user.password);
+
+    return this.generateTokens({ _id: user._id });
   }
 
   private async generateTokens(
@@ -40,5 +56,16 @@ export class AuthService {
     const salt = await genSalt(this.configService.auth.saltRounds);
     const hashedPassword = hash(password, salt);
     return hashedPassword;
+  }
+
+  private async verifyPassword(
+    provided: string,
+    hashed: string,
+  ): Promise<void> {
+    const isMatched = await compare(provided, hashed);
+
+    if (!isMatched) {
+      throw new UnauthorizedException('wrong_password');
+    }
   }
 }

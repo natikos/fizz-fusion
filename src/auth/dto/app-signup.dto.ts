@@ -9,7 +9,7 @@ import {
 import { startOfDay } from 'date-fns';
 import { IsAdult } from '../validators';
 
-export class AppSignUp {
+export class AppSignUpDto {
   @IsString()
   @Length(5, 15)
   username: string;

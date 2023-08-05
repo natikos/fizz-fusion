@@ -25,7 +25,10 @@
         "src/common/utils"
       ],
       "#config": [
-        "src/config/config.service"
+        "src/config",
+      ],
+      "#common/*": [
+        "src/common/*"
       ]
     }
   }
