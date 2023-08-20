@@ -5,8 +5,9 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { compare, genSalt, hash } from 'bcrypt';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { AppLogInDto, AppSignUpDto, AuthenticationResponseDto } from './dto';
+import { FacebookUser } from './types';
 
 @Injectable()
 export class AuthService {
@@ -40,6 +41,29 @@ export class AuthService {
     }
 
     await this.verifyPassword(password, user.password);
+
+    return this.generateTokens({ _id: user._id });
+  }
+
+  async facebookAuth(
+    userData: FacebookUser,
+  ): Promise<AuthenticationResponseDto> {
+    const { id: facebookId, birthday, ...unmodifiedData } = userData;
+    let user = await this.user.findOne(
+      { externalProviderIds: facebookId },
+      { _id: 1 },
+    );
+
+    if (!user) {
+      const userId = new Types.ObjectId();
+      user = await this.user.create({
+        _id: userId,
+        ...unmodifiedData,
+        username: userId,
+        birthDate: new Date(birthday),
+        externalProviderIds: [facebookId],
+      });
+    }
 
     return this.generateTokens({ _id: user._id });
   }

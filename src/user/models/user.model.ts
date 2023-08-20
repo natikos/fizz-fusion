@@ -14,6 +14,9 @@ export class User extends mongoose.Document {
   @Prop({ select: false })
   password: string;
 
+  @Prop({ type: [String], select: false })
+  externalProviderIds: string[];
+
   @Prop({ immutable: true })
   firstName: string;
 

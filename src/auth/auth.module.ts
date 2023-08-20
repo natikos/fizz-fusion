@@ -5,6 +5,7 @@ import { AppConfigModule } from 'src/config/config.module';
 import { AppConfigService } from 'src/config/config.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { FacebookStrategy } from './guards';
 
 @Module({
   imports: [
@@ -16,6 +17,6 @@ import { AuthService } from './auth.service';
     UserModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, FacebookStrategy],
 })
 export class AuthModule {}

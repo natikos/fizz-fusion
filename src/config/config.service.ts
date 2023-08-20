@@ -7,7 +7,7 @@ import {
   MongooseModuleOptions,
   MongooseOptionsFactory,
 } from '@nestjs/mongoose';
-import { AuthVars } from './interfaces';
+import { AuthVars, FacebookCredentials } from './interfaces';
 
 @Injectable()
 export class AppConfigService
@@ -43,5 +43,11 @@ export class AppConfigService
 
   get environment(): Environment {
     return this.envService.getOrThrow('NODE_ENV');
+  }
+
+  get facebookCredentials(): FacebookCredentials {
+    const id = this.envService.getOrThrow('FACEBOOK_APP_ID');
+    const secret = this.envService.getOrThrow('FACEBOOK_APP_SECRET');
+    return { id, secret };
   }
 }

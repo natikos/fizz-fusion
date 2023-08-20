@@ -1,3 +1,4 @@
+import { AppConfigService } from '#config';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import {
@@ -11,6 +12,20 @@ async function bootstrap() {
     AppModule,
     new FastifyAdapter({ logger: true }),
   );
+
+  app
+    .getHttpAdapter()
+    .getInstance()
+    .addHook('onRequest', async (req) => {
+      (req.socket as any)['encrypted'] =
+        app.get(AppConfigService).environment === 'production';
+    })
+    .decorateReply('setHeader', function (name: string, value: unknown) {
+      this.header(name, value);
+    })
+    .decorateReply('end', function () {
+      this.send('');
+    });
 
   app.useGlobalPipes(
     new ValidationPipe({
