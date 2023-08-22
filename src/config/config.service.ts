@@ -7,7 +7,7 @@ import {
   MongooseModuleOptions,
   MongooseOptionsFactory,
 } from '@nestjs/mongoose';
-import { AuthVars, FacebookCredentials } from './interfaces';
+import { AuthVariables, FacebookCredentials } from './interfaces';
 
 @Injectable()
 export class AppConfigService
@@ -36,7 +36,7 @@ export class AppConfigService
     };
   }
 
-  get auth(): AuthVars {
+  get auth(): AuthVariables {
     const saltRounds = +this.envService.getOrThrow('SALT_ROUNDS');
     return { saltRounds };
   }

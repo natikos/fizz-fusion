@@ -1,4 +1,4 @@
-export interface AuthVars {
+export interface AuthVariables {
   saltRounds: number;
 }
 
